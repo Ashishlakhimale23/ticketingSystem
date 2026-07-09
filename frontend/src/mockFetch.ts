@@ -574,7 +574,7 @@ const mockFetch = async function (input: RequestInfo | URL, init?: RequestInit):
     // ============================================
     if (path === "audit-logs") {
       if (method === "GET") {
-        if (!["GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER"].includes(loggedIn.role)) {
+        if (!["GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER", "DEPT_MANAGER"].includes(loggedIn.role)) {
           return jsonResponse({ error: "Forbidden" }, 403);
         }
         const userId = searchParams.get("userId");
@@ -987,7 +987,7 @@ const mockFetch = async function (input: RequestInfo | URL, init?: RequestInit):
         } else if (loggedIn.role === "AGENT") {
           // Can see assigned or same department
           list = list.filter(t => t.assigneeId === loggedIn.id || t.departmentId === loggedIn.departmentId);
-        } else if (loggedIn.role === "MANAGER" || loggedIn.role === "DEPT_ADMIN") {
+        } else if (["MANAGER", "DEPT_MANAGER", "DEPT_ADMIN"].includes(loggedIn.role)) {
           list = list.filter(t => t.departmentId === loggedIn.departmentId);
         }
 
@@ -1560,6 +1560,146 @@ const mockFetch = async function (input: RequestInfo | URL, init?: RequestInit):
       });
       if (count > 0) saveDb();
       return jsonResponse({ success: true, expiredCount: count });
+    }
+
+    // ============================================
+    // MANAGER DASHBOARD
+    // ============================================
+    if (path === "manager-dashboard/team" && method === "GET") {
+      if (!["DEPT_MANAGER", "MANAGER", "GLOBAL_ADMIN", "DEPT_ADMIN"].includes(loggedIn.role)) {
+        return jsonResponse({ error: "Forbidden" }, 403);
+      }
+      const deptId = loggedIn.departmentId;
+      const dept = db.departments.find(d => d.id === deptId);
+      const members = db.users.filter(u => u.departmentId === deptId && u.id !== loggedIn.id && u.isActive);
+
+      const usersWithStats = members.map(u => {
+        const assigned = db.tickets.filter(t => t.assigneeId === u.id);
+        const activeAssigned = assigned.filter(t => t.status !== "RESOLVED");
+        const openCount = assigned.filter(t => t.status === "OPEN").length;
+        const inProgressCount = assigned.filter(t => t.status === "IN_PROGRESS").length;
+        const resolvedCount = assigned.filter(t => t.status === "RESOLVED").length;
+        const breachedCount = assigned.filter(t => t.slaBreached && t.status !== "RESOLVED").length;
+        const requested = db.tickets.filter(t => t.requesterId === u.id).length;
+
+        return {
+          id: u.id,
+          fullName: u.fullName,
+          email: u.email,
+          role: u.role,
+          isAvailableForAssignment: u.isAvailableForAssignment,
+          activeTickets: activeAssigned.length,
+          totalRequested: requested,
+          openTickets: openCount,
+          inProgressTickets: inProgressCount,
+          resolvedTickets: resolvedCount,
+          breachedTickets: breachedCount,
+        };
+      });
+
+      return jsonResponse({
+        departmentId: deptId,
+        departmentName: dept?.name || "Unknown",
+        users: usersWithStats,
+      });
+    }
+
+    const managerUserTicketsMatch = path.match(/^manager-dashboard\/user\/([^/]+)\/tickets$/);
+    if (managerUserTicketsMatch && method === "GET") {
+      if (!["DEPT_MANAGER", "MANAGER", "GLOBAL_ADMIN", "DEPT_ADMIN"].includes(loggedIn.role)) {
+        return jsonResponse({ error: "Forbidden" }, 403);
+      }
+      const targetUserId = managerUserTicketsMatch[1];
+      const targetUser = db.users.find(u => u.id === targetUserId);
+      if (!targetUser) return jsonResponse({ error: "User not found" }, 404);
+
+      if (targetUser.departmentId !== loggedIn.departmentId && loggedIn.role !== "GLOBAL_ADMIN") {
+        return jsonResponse({ error: "User is not in your department" }, 403);
+      }
+
+      let tickets = db.tickets.filter(t =>
+        (t.assigneeId === targetUserId || t.requesterId === targetUserId) &&
+        t.departmentId === loggedIn.departmentId
+      );
+      tickets.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+      const enriched = tickets.map(t => {
+        const requester = db.users.find(u => u.id === t.requesterId);
+        const assignee = db.users.find(u => u.id === t.assigneeId);
+        const dept = db.departments.find(d => d.id === t.departmentId);
+        const cat = db.ticketCategories.find(c => c.id === t.categoryId);
+        const ticketComments = db.ticketComments
+          .filter(c => c.ticketId === t.id)
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(0, 5)
+          .map(c => {
+            const commentUser = db.users.find(u => u.id === c.userId);
+            return { ...c, user: { fullName: commentUser?.fullName || "User" } };
+          });
+
+        return {
+          ...t,
+          requester: requester ? { fullName: requester.fullName, email: requester.email } : undefined,
+          assignee: assignee ? { fullName: assignee.fullName, email: assignee.email } : undefined,
+          department: dept ? { name: dept.name } : undefined,
+          category: cat ? { name: cat.name } : undefined,
+          comments: ticketComments,
+        };
+      });
+
+      return jsonResponse({
+        user: { id: targetUserId, fullName: targetUser.fullName },
+        tickets: enriched,
+      });
+    }
+
+    if (path === "manager-dashboard/reassign" && method === "POST") {
+      if (!["DEPT_MANAGER", "MANAGER", "GLOBAL_ADMIN", "DEPT_ADMIN"].includes(loggedIn.role)) {
+        return jsonResponse({ error: "Forbidden" }, 403);
+      }
+      const { ticketId, newAssigneeId } = body;
+      const ticketIndex = db.tickets.findIndex(t => t.id === ticketId);
+      if (ticketIndex === -1) return jsonResponse({ error: "Ticket not found" }, 404);
+
+      const newAssignee = db.users.find(u => u.id === newAssigneeId);
+      if (!newAssignee || !newAssignee.isActive) {
+        return jsonResponse({ error: "New assignee not found or inactive" }, 400);
+      }
+
+      db.tickets[ticketIndex].assigneeId = newAssigneeId;
+      db.tickets[ticketIndex].assignedById = loggedIn.id;
+      db.tickets[ticketIndex].assignmentMethod = "MANUAL";
+      db.tickets[ticketIndex].assignedAt = new Date().toISOString();
+      db.tickets[ticketIndex].updatedAt = new Date().toISOString();
+
+      db.auditLogs.push({
+        id: "audit-" + uuid(),
+        userId: loggedIn.id,
+        action: `Reassigned Ticket ${db.tickets[ticketIndex].ticketNumber} to ${newAssignee.fullName}`,
+        entityType: "Ticket",
+        entityId: ticketId,
+        createdAt: new Date().toISOString()
+      });
+
+      saveDb();
+      return jsonResponse(db.tickets[ticketIndex]);
+    }
+
+    if (path === "manager-dashboard/set-manager" && method === "POST") {
+      if (loggedIn.role !== "GLOBAL_ADMIN") {
+        return jsonResponse({ error: "Forbidden" }, 403);
+      }
+      const { userId } = body;
+      const userIndex = db.users.findIndex(u => u.id === userId);
+      if (userIndex === -1) return jsonResponse({ error: "User not found" }, 404);
+      if (!db.users[userIndex].departmentId) {
+        return jsonResponse({ error: "User must belong to a department first" }, 400);
+      }
+      db.users[userIndex].role = "DEPT_MANAGER";
+      db.users[userIndex].updatedAt = new Date().toISOString();
+      saveDb();
+      const { passwordHash, ...rest } = db.users[userIndex];
+      return jsonResponse(rest);
     }
 
     // Return 404 for unhandled API endpoints
