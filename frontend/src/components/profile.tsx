@@ -57,7 +57,7 @@ export const Profile = ({user,setUser,token,setSuccess}:{
                 </div>
 
                 {/* Agent Assignment state toggle */}
-                {["AGENT", "TEAM_LEAD", "MANAGER"].includes(user.role) && (
+                {["AGENT", "TEAM_LEAD", "MANAGER", "DEPT_MANAGER"].includes(user.role) && (
                   <div className="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                       <h3 className="text-sm font-semibold text-slate-800">Support Assignment Status</h3>

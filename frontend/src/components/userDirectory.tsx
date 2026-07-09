@@ -25,7 +25,7 @@ export const UserDirectory = (
   const [editUserMaxTickets, setEditUserMaxTickets] = useState(15);
 
 
-  const isAdmin = user ? ["GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER"].includes(user.role) : false;
+  const isAdmin = user ? ["GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER", "DEPT_MANAGER"].includes(user.role) : false;
 
 
   const handleSaveUserDetails = async (e: React.FormEvent) => {
@@ -222,20 +222,51 @@ export const UserDirectory = (
                         </label>
                       </div>
 
-                      <div className="flex gap-2 justify-end border-t border-slate-100 pt-4">
+                      <div className="flex gap-2 justify-between border-t border-slate-100 pt-4">
                         <button
                           type="button"
-                          onClick={() => setEditingUserId(null)}
-                          className="px-4 py-2 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+                          onClick={async () => {
+                            if (!editingUserId) return;
+                            try {
+                              const res = await fetch("http://localhost:3000/manager-dashboard/set-manager", {
+                                method: "POST",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                  Authorization: `Bearer ${token}`
+                                },
+                                body: JSON.stringify({ userId: editingUserId })
+                              });
+                              if (res.ok) {
+                                setSuccess("User promoted to Department Manager");
+                                setEditingUserId(null);
+                                fetchUsers();
+                              } else {
+                                const err = await res.json();
+                                setError(err.error || "Failed to set manager");
+                              }
+                            } catch {
+                              setError("Failed to set manager");
+                            }
+                          }}
+                          className="px-4 py-2 border border-indigo-200 text-indigo-700 text-xs font-semibold rounded-lg hover:bg-indigo-50 transition-colors cursor-pointer"
                         >
-                          Cancel
+                          Set as Manager
                         </button>
-                        <button
-                          type="submit"
-                          className="px-4 py-2 bg-slate-900 text-white text-xs font-semibold rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
-                        >
-                          Save Changes
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setEditingUserId(null)}
+                            className="px-4 py-2 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            className="px-4 py-2 bg-slate-900 text-white text-xs font-semibold rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                          >
+                            Save Changes
+                          </button>
+                        </div>
                       </div>
                     </form>
                   </div>

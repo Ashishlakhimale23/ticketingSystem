@@ -6,6 +6,7 @@ export enum UserRole {
   GLOBAL_ADMIN = "GLOBAL_ADMIN",
   DEPT_ADMIN = "DEPT_ADMIN",
   MANAGER = "MANAGER",
+  DEPT_MANAGER = "DEPT_MANAGER",
   TEAM_LEAD = "TEAM_LEAD",
   AGENT = "AGENT",
   REQUESTER = "REQUESTER",
@@ -113,6 +114,16 @@ export interface KeywordSuggestion {
   updatedAt: string;
 }
 
+export interface TicketComment {
+  id: string;
+  ticketId: string;
+  userId: string;
+  commentText: string;
+  isInternal: boolean;
+  createdAt: string;
+  user?: { fullName: string };
+}
+
 export interface Ticket {
   id: string;
   ticketNumber: string;
@@ -148,6 +159,7 @@ export interface Ticket {
   assignee?: { fullName: string; email: string; supportLevel?: SupportLevel };
   department?: { name: string };
   category?: { name: string; defaultSlaHours?: number };
+  comments?: TicketComment[];
 }
 
 export interface Comment {
@@ -214,6 +226,26 @@ export interface Invitation {
   departmentName?: string;
   categoryName?: string;
   categoryNames?: string[];
+}
+
+export interface DepartmentTeamMember {
+  id: string;
+  fullName: string;
+  email: string;
+  role: string;
+  isAvailableForAssignment: boolean;
+  activeTickets: number;
+  totalRequested: number;
+  openTickets: number;
+  inProgressTickets: number;
+  resolvedTickets: number;
+  breachedTickets: number;
+}
+
+export interface DepartmentTeam {
+  departmentId: string;
+  departmentName: string;
+  users: DepartmentTeamMember[];
 }
 
 export interface TicketStatusHistory {
