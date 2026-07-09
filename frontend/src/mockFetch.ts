@@ -720,9 +720,9 @@ const mockFetch = async function (input: RequestInfo | URL, init?: RequestInit):
       return jsonResponse(rest);
     }
 
-    if (singleUserMatch && method === "PUT") {
+    if (singleUserMatch && (method === "PUT" || method === "PATCH")) {
       const uId = singleUserMatch[1];
-      if (!["GLOBAL_ADMIN", "DEPT_ADMIN"].includes(loggedIn.role) && loggedIn.id !== uId) {
+      if (!["GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER"].includes(loggedIn.role) && loggedIn.id !== uId) {
         return jsonResponse({ error: "Forbidden" }, 403);
       }
       const userIndex = db.users.findIndex(u => u.id === uId);
