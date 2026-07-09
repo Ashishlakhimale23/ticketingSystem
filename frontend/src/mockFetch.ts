@@ -1601,7 +1601,7 @@ const mockFetch = async function (input: RequestInfo | URL, init?: RequestInit):
     // MANAGER DASHBOARD
     // ============================================
     if (path === "manager-dashboard/team" && method === "GET") {
-      if (!["DEPT_MANAGER", "MANAGER"].includes(loggedIn.role)) {
+      if (loggedIn.role !== "DEPT_MANAGER") {
         return jsonResponse({ error: "Forbidden" }, 403);
       }
       const deptId = loggedIn.departmentId;
@@ -1641,7 +1641,7 @@ const mockFetch = async function (input: RequestInfo | URL, init?: RequestInit):
 
     const managerUserTicketsMatch = path.match(/^manager-dashboard\/user\/([^/]+)\/tickets$/);
     if (managerUserTicketsMatch && method === "GET") {
-      if (!["DEPT_MANAGER", "MANAGER"].includes(loggedIn.role)) {
+      if (loggedIn.role !== "DEPT_MANAGER") {
         return jsonResponse({ error: "Forbidden" }, 403);
       }
       const targetUserId = managerUserTicketsMatch[1];
@@ -1689,7 +1689,7 @@ const mockFetch = async function (input: RequestInfo | URL, init?: RequestInit):
     }
 
     if (path === "manager-dashboard/reassign" && method === "POST") {
-      if (!["DEPT_MANAGER", "MANAGER"].includes(loggedIn.role)) {
+      if (loggedIn.role !== "DEPT_MANAGER") {
         return jsonResponse({ error: "Forbidden" }, 403);
       }
       const { ticketId, newAssigneeId } = body;
