@@ -164,7 +164,7 @@ export default function App() {
   const isStaff = user ? ["CEO", "CTO", "CFO", "COO", "GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER", "DEPT_MANAGER", "TEAM_LEAD", "AGENT"].includes(user.role) : false;
   const isAdmin = user ? ["GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER", "DEPT_MANAGER"].includes(user.role) : false;
   const isGlobalAdmin = user ? user.role === "GLOBAL_ADMIN" : false;
-  const isManager = user ? ["MANAGER", "DEPT_MANAGER", "GLOBAL_ADMIN", "DEPT_ADMIN"].includes(user.role) : false;
+  const isManager = user ? ["MANAGER", "DEPT_MANAGER", "GLOBAL_ADMIN"].includes(user.role) : false;
 
   // Initialize and check token
   useEffect(() => {
