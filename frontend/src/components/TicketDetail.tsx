@@ -51,8 +51,8 @@ export default function TicketDetail({ ticketId, token, currentUser, onBack }: T
   const [availableAgents, setAvailableAgents] = useState<UserType[]>([]);
   const [selectedAgentId, setSelectedAgentId] = useState("");
 
-  const isStaff = ["CEO", "CTO", "CFO", "COO", "GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER", "TEAM_LEAD", "AGENT"].includes(currentUser.role);
-  const isAdmin = ["GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER"].includes(currentUser.role);
+  const isStaff = ["CEO", "CTO", "CFO", "COO", "GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER", "DEPT_MANAGER", "TEAM_LEAD", "AGENT"].includes(currentUser.role);
+  const isAdmin = ["GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER", "DEPT_MANAGER"].includes(currentUser.role);
 
   const fetchTicketDetails = async () => {
     try {
@@ -113,7 +113,7 @@ export default function TicketDetail({ ticketId, token, currentUser, onBack }: T
         });
         if (agentsRes.ok) {
           const agentsData: UserType[] = await agentsRes.json();
-          setAvailableAgents(agentsData.filter(u => u.isActive && ["AGENT", "TEAM_LEAD", "MANAGER", "DEPT_ADMIN"].includes(u.role)));
+          setAvailableAgents(agentsData.filter(u => u.isActive && ["AGENT", "TEAM_LEAD", "MANAGER", "DEPT_MANAGER", "DEPT_ADMIN"].includes(u.role)));
         }
       }
 
