@@ -2,6 +2,7 @@ import { Response } from "express";
 import { AuthedRequest } from "../middleware/auth";
 import { prisma } from "../lib/database";
 import { AppError } from "../middleware/errorHandler";
+import { UserRole } from "../generated/prisma/client";
 
 export const managerDashboardController = {
   async getTeam(req: AuthedRequest, res: Response) {
@@ -32,32 +33,33 @@ export const managerDashboardController = {
         email: true,
         role: true,
         isAvailableForAssignment: true,
-        _count: {
-          select: {
-            ticketsAssigned: {
-              where: { status: { not: "RESOLVED" } },
-            },
-            ticketsRequested: true,
-          },
-        },
       },
       orderBy: { fullName: "asc" },
     });
 
     const usersWithTickets = await Promise.all(
       users.map(async (u) => {
-        const openCount = await prisma.ticket.count({
-          where: { assigneeId: u.id, status: "OPEN" },
-        });
-        const inProgressCount = await prisma.ticket.count({
-          where: { assigneeId: u.id, status: "IN_PROGRESS" },
-        });
-        const resolvedCount = await prisma.ticket.count({
-          where: { assigneeId: u.id, status: "RESOLVED" },
-        });
-        const breachedCount = await prisma.ticket.count({
-          where: { assigneeId: u.id, slaBreached: true, status: { not: "RESOLVED" } },
-        });
+        const [activeTickets, totalRequested, openCount, inProgressCount, resolvedCount, breachedCount] =
+          await Promise.all([
+            prisma.ticket.count({
+              where: { assigneeId: u.id, status: { not: "RESOLVED" } },
+            }),
+            prisma.ticket.count({
+              where: { requesterId: u.id },
+            }),
+            prisma.ticket.count({
+              where: { assigneeId: u.id, status: "OPEN" },
+            }),
+            prisma.ticket.count({
+              where: { assigneeId: u.id, status: "IN_PROGRESS" },
+            }),
+            prisma.ticket.count({
+              where: { assigneeId: u.id, status: "RESOLVED" },
+            }),
+            prisma.ticket.count({
+              where: { assigneeId: u.id, slaBreached: true, status: { not: "RESOLVED" } },
+            }),
+          ]);
 
         return {
           id: u.id,
@@ -65,8 +67,8 @@ export const managerDashboardController = {
           email: u.email,
           role: u.role,
           isAvailableForAssignment: u.isAvailableForAssignment,
-          activeTickets: u._count.ticketsAssigned,
-          totalRequested: u._count.ticketsRequested,
+          activeTickets,
+          totalRequested,
           openTickets: openCount,
           inProgressTickets: inProgressCount,
           resolvedTickets: resolvedCount,
@@ -143,13 +145,15 @@ export const managerDashboardController = {
 
     const ticket = await prisma.ticket.findUnique({
       where: { id: ticketId },
-      select: { departmentId: true, assigneeId: true },
+      select: { departmentId: true, assigneeId: true, status: true, ticketNumber: true },
     });
 
     if (!ticket) throw new AppError("Ticket not found", 404);
     if (ticket.departmentId !== manager?.departmentId) {
       throw new AppError("Ticket is not in your department", 403);
     }
+
+    const prevStatus = ticket.status;
 
     const newAssignee = await prisma.user.findUnique({
       where: { id: newAssigneeId },
@@ -179,11 +183,11 @@ export const managerDashboardController = {
     await prisma.ticketStatusHistory.create({
       data: {
         ticketId,
-        fromStatus: null,
+        fromStatus: prevStatus,
         status: updated.status,
         changedById: managerId,
         changedAt: new Date(),
-        note: `Reassigned by manager to ${updated.assignee?.fullName || "another agent"}`,
+        note: `Reassigned by manager from ${prevStatus} to ${updated.assignee?.fullName || "another agent"}`,
       },
     });
 
@@ -214,7 +218,7 @@ export const managerDashboardController = {
 
     const updated = await prisma.user.update({
       where: { id: userId },
-      data: { role: "DEPT_MANAGER" },
+      data: { role: UserRole.DEPT_MANAGER },
     });
 
     await prisma.auditLog.create({
