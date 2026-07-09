@@ -12,13 +12,8 @@ const INVITATION_TTL_DAYS = 7;
 // a DEPT_ADMIN is scoped to their own department and can't create other
 // admins or C-suite accounts.
 const DEPT_ADMIN_INVITABLE_ROLES: UserRole[] = [
-  UserRole.MANAGER,
-  UserRole.TEAM_LEAD,
   UserRole.AGENT,
-  UserRole.REQUESTER,
   UserRole.EMPLOYEE,
-  UserRole.VENDOR,
-  UserRole.CONTRACTOR,
 ];
 
 class InvitationError extends Error {}

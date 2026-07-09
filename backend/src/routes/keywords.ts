@@ -4,7 +4,7 @@ import { requireAuth, requireRole } from "../middleware/auth";
 import { keywordController } from "../controllers/keyword.controller";
 
 export const keywordRouter = Router();
-const ADMIN_ROLES = [UserRole.DEPT_ADMIN, UserRole.GLOBAL_ADMIN];
+const ADMIN_ROLES = [UserRole.DEPT_MANAGER, UserRole.GLOBAL_ADMIN];
 
 keywordRouter.post("/", requireAuth, requireRole(...ADMIN_ROLES), keywordController.create);
 keywordRouter.get("/", requireAuth, keywordController.list);

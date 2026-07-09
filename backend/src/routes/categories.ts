@@ -8,6 +8,6 @@ export const categoryRouter = Router();
 categoryRouter.patch(
   "/:id",
   requireAuth,
-  requireRole(UserRole.GLOBAL_ADMIN, UserRole.DEPT_ADMIN),
+  requireRole(UserRole.GLOBAL_ADMIN, UserRole.DEPT_MANAGER),
   ticketCategoryController.update
 );

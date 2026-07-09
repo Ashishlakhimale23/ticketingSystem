@@ -42,7 +42,7 @@ export const escalationService = {
     const candidates = await prisma.user.findMany({
       where: {
         departmentId: ticket.departmentId,
-        role: { in: [UserRole.AGENT, UserRole.TEAM_LEAD, UserRole.MANAGER] },
+        role: { in: [UserRole.AGENT] },
         supportLevel: toLevel,
         isActive: true,
       },

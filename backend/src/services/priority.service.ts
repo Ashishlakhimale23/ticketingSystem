@@ -12,19 +12,10 @@ const rank = (p: TicketPriority) => ORDER.indexOf(p);
  * their role's floor even if they filed it under a low-urgency category.
  */
 const ROLE_BASE_PRIORITY: Record<UserRole, TicketPriority> = {
-  CEO: TicketPriority.P1,
-  CTO: TicketPriority.P1,
-  CFO: TicketPriority.P1,
-  COO: TicketPriority.P1,
   GLOBAL_ADMIN: TicketPriority.P2,
-  DEPT_ADMIN: TicketPriority.P2,
-  MANAGER: TicketPriority.P2,
-  TEAM_LEAD: TicketPriority.P3,
+  DEPT_MANAGER: TicketPriority.P2,
   AGENT: TicketPriority.P3,
-  REQUESTER: TicketPriority.P3,
   EMPLOYEE: TicketPriority.P3,
-  VENDOR: TicketPriority.P4,
-  CONTRACTOR: TicketPriority.P4,
 };
 
 // Support-level floor: a ticket already requiring deep specialist

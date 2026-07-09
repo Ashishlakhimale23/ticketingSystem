@@ -6,30 +6,22 @@ import { UserRole } from "../generated/prisma/client";
 // ticket.controller.ts; consolidated here so a role reclassification
 // only has to happen in one place.
 
-export const EXECUTIVE_ROLES: UserRole[] = [UserRole.CEO, UserRole.CTO, UserRole.CFO, UserRole.COO];
 
-export const ADMIN_ROLES: UserRole[] = [UserRole.GLOBAL_ADMIN, UserRole.DEPT_ADMIN];
+export const ADMIN_ROLES: UserRole[] = [UserRole.GLOBAL_ADMIN];
 
 /** Anyone who works tickets or manages the people who do. */
 export const STAFF_ROLES: UserRole[] = [
-  ...EXECUTIVE_ROLES,
   ...ADMIN_ROLES,
-  UserRole.MANAGER,
-  UserRole.TEAM_LEAD,
   UserRole.AGENT,
 ];
 
 /** Anyone whose role means "I only ever see tickets I personally filed". */
 export const REQUESTER_ONLY_ROLES: UserRole[] = [
-  UserRole.REQUESTER,
   UserRole.EMPLOYEE,
-  UserRole.VENDOR,
-  UserRole.CONTRACTOR,
 ];
 
-export const ASSIGNABLE_AGENT_ROLES: UserRole[] = [UserRole.AGENT, UserRole.TEAM_LEAD];
+export const ASSIGNABLE_AGENT_ROLES: UserRole[] = [UserRole.AGENT];
 
 export const isStaff = (role: UserRole) => STAFF_ROLES.includes(role);
 export const isRequesterOnly = (role: UserRole) => REQUESTER_ONLY_ROLES.includes(role);
 export const isAdmin = (role: UserRole) => ADMIN_ROLES.includes(role);
-export const isExecutive = (role: UserRole) => EXECUTIVE_ROLES.includes(role);

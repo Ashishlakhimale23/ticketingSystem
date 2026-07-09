@@ -12,7 +12,7 @@ import { AppError } from "../middleware/errorHandler";
 
 // Roles whose "list" view is scoped to just their department, rather
 // than being requester-only (see below) or company-wide (GLOBAL_ADMIN).
-const DEPARTMENT_SCOPED_ROLES: UserRole[] = [UserRole.TEAM_LEAD, UserRole.MANAGER, UserRole.DEPT_ADMIN];
+const DEPARTMENT_SCOPED_ROLES: UserRole[] = [ UserRole.DEPT_MANAGER];
 
 
 export const ticketController = {
@@ -169,7 +169,7 @@ export const ticketController = {
   async listByDepartment(req: AuthedRequest, res: Response) {
     const { departmentId } = req.params;
 
-    if (req.user!.role === UserRole.DEPT_ADMIN && req.user!.departmentId !== departmentId) {
+    if (req.user!.role === UserRole.DEPT_MANAGER && req.user!.departmentId !== departmentId) {
       throw new AppError("You can only view tickets in your own department", 403);
     }
 

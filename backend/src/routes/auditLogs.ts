@@ -11,7 +11,7 @@ export const auditLogRouter = Router();
 auditLogRouter.get(
   "/",
   requireAuth,
-  requireRole(UserRole.GLOBAL_ADMIN, UserRole.DEPT_ADMIN),
+  requireRole(UserRole.GLOBAL_ADMIN, UserRole.DEPT_MANAGER),
   asyncHandler(auditLogController.list)
 );
 

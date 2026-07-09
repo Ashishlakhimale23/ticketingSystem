@@ -18,6 +18,6 @@ userRouter.get('/metric/:id',requireAuth,userController.metric)
 userRouter.patch(
   "/:id",
   requireAuth,
-  requireRole(UserRole.GLOBAL_ADMIN, UserRole.DEPT_ADMIN, UserRole.MANAGER),
+  requireRole(UserRole.GLOBAL_ADMIN, UserRole.DEPT_MANAGER),
   userController.update
 );

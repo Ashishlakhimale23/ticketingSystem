@@ -31,7 +31,7 @@ ticketRouter.get("/mytickets/:id",requireAuth,ticketController.myTickets)
 ticketRouter.post(
   "/:id/escalate",
   requireAuth,
-  requireRole(UserRole.AGENT, UserRole.TEAM_LEAD, UserRole.MANAGER, UserRole.DEPT_ADMIN, UserRole.GLOBAL_ADMIN),
+  requireRole(UserRole.AGENT, UserRole.DEPT_MANAGER, UserRole.GLOBAL_ADMIN),
   ticketController.escalate
 );
 
@@ -43,13 +43,12 @@ ticketRouter.get("/:id/escalations", requireAuth, ticketController.listEscalatio
 ticketRouter.post(
   "/:id/assign",
   requireAuth,
-  requireRole(UserRole.TEAM_LEAD, UserRole.MANAGER, UserRole.DEPT_ADMIN, UserRole.GLOBAL_ADMIN),
-  ticketController.assign
+  requireRole(  UserRole.DEPT_MANAGER, UserRole.GLOBAL_ADMIN), ticketController.assign
 );
 ticketRouter.post(
   "/:id/reassign",
   requireAuth,
-  requireRole(UserRole.TEAM_LEAD, UserRole.MANAGER, UserRole.DEPT_ADMIN, UserRole.GLOBAL_ADMIN),
+  requireRole(UserRole.DEPT_MANAGER, UserRole.GLOBAL_ADMIN),
   ticketController.autoReassign
 );
 
@@ -63,13 +62,13 @@ ticketRouter.get("/:id/status-history",requireAuth,requireRole(UserRole.GLOBAL_A
 ticketRouter.post(
   "/:id/keywords",
   requireAuth,
-  requireRole(UserRole.AGENT, UserRole.TEAM_LEAD, UserRole.MANAGER, UserRole.DEPT_ADMIN, UserRole.GLOBAL_ADMIN),
+  requireRole(UserRole.AGENT, UserRole.DEPT_MANAGER, UserRole.GLOBAL_ADMIN),
   ticketController.addKeyword
 );
 ticketRouter.delete(
   "/:id/keywords/:keywordId",
   requireAuth,
-  requireRole(UserRole.AGENT, UserRole.TEAM_LEAD, UserRole.MANAGER, UserRole.DEPT_ADMIN, UserRole.GLOBAL_ADMIN),
+  requireRole(UserRole.AGENT,  UserRole.DEPT_MANAGER, UserRole.GLOBAL_ADMIN),
   ticketController.removeKeyword
 );
 
