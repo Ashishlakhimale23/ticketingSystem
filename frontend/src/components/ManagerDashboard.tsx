@@ -21,6 +21,8 @@ interface ManagerDashboardProps {
   setCurrentView: (view: string) => void;
 }
 
+const API_BASE = "http://localhost:3000";
+
 export default function ManagerDashboard({
   token,
   currentUser,
@@ -40,7 +42,7 @@ export default function ManagerDashboard({
   const fetchTeam = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:3000/manager-dashboard/team`, {
+      const res = await fetch(`${API_BASE}/manager-dashboard/team`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -61,7 +63,7 @@ export default function ManagerDashboard({
     setTicketLoading(true);
     setShowReassign(null);
     try {
-      const res = await fetch(`http://localhost:3000/manager-dashboard/user/${userId}/tickets`, {
+      const res = await fetch(`${API_BASE}/manager-dashboard/user/${userId}/tickets`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -83,7 +85,7 @@ export default function ManagerDashboard({
     setError("");
     setSuccess("");
     try {
-      const res = await fetch(`http://localhost:3000/manager-dashboard/reassign`, {
+      const res = await fetch(`${API_BASE}/manager-dashboard/reassign`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
