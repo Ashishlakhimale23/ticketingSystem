@@ -21,8 +21,8 @@ export const Dashboard = ({setCurrentView,user,setSelectedTicketId,token,metric}
 }) => {
     const [tickets,setTickets] = useState<Ticket[]>([])
 
-    const isStaff = user ? ["CEO", "CTO", "CFO", "COO", "GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER", "TEAM_LEAD", "AGENT"].includes(user.role) : false;
-    const isAdmin = user ? ["GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER"].includes(user.role) : false;
+    const isStaff = user ? ["CEO", "CTO", "CFO", "COO", "GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER", "DEPT_MANAGER", "TEAM_LEAD", "AGENT"].includes(user.role) : false;
+    const isAdmin = user ? ["GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER", "DEPT_MANAGER"].includes(user.role) : false;
 
     const fetchTickets = async () => {
     try {
