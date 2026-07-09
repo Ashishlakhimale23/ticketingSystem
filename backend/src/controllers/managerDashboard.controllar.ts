@@ -152,6 +152,9 @@ export const managerDashboardController = {
     if (ticket.departmentId !== manager?.departmentId) {
       throw new AppError("Ticket is not in your department", 403);
     }
+    if (ticket.assigneeId === newAssigneeId) {
+      throw new AppError("Ticket is already assigned to this user", 400);
+    }
 
     const prevStatus = ticket.status;
 
@@ -215,6 +218,9 @@ export const managerDashboardController = {
 
     if (!user) throw new AppError("User not found", 404);
     if (!user.departmentId) throw new AppError("User must belong to a department first", 400);
+    if (user.role === UserRole.DEPT_MANAGER) {
+      throw new AppError("User is already a Department Manager", 400);
+    }
 
     const updated = await prisma.user.update({
       where: { id: userId },
