@@ -474,13 +474,14 @@ const mockFetch = async function (input: RequestInfo | URL, init?: RequestInit):
   const body = init?.body ? JSON.parse(init.body as string) : null;
   const headers = init?.headers;
 
-  // Process only local api requests
-  if (!urlStr.includes("/api/")) {
+  // Process only localhost requests (intercept all API calls to local backend)
+  if (!urlStr.includes("localhost:3000")) {
     return originalFetch(input, init);
   }
 
-  // Extract relative path
-  const path = urlStr.split("/api/")[1]?.split("?")[0] || "";
+  // Extract relative path from localhost URL (handles both /api/ prefix and without)
+  const urlPath = urlStr.replace(/^https?:\/\/[^/]+/, "").split("?")[0].replace(/^\//, "");
+  const path = urlPath.startsWith("api/") ? urlPath.slice(4) : urlPath;
   const searchParams = new URLSearchParams(urlStr.includes("?") ? urlStr.split("?")[1] : "");
 
   // Helper for consistent JSON responses
