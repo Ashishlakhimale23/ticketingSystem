@@ -9,19 +9,19 @@ managerDashboardRouter.use(requireAuth);
 
 managerDashboardRouter.get(
   "/team",
-  requireRole(UserRole.DEPT_MANAGER, UserRole.MANAGER, UserRole.GLOBAL_ADMIN),
+  requireRole(UserRole.DEPT_MANAGER, UserRole.GLOBAL_ADMIN),
   managerDashboardController.getTeam
 );
 
 managerDashboardRouter.get(
   "/user/:userId/tickets",
-  requireRole(UserRole.DEPT_MANAGER, UserRole.MANAGER, UserRole.GLOBAL_ADMIN),
+  requireRole(UserRole.DEPT_MANAGER, UserRole.GLOBAL_ADMIN),
   managerDashboardController.getUserTickets
 );
 
 managerDashboardRouter.post(
   "/reassign",
-  requireRole(UserRole.DEPT_MANAGER, UserRole.MANAGER, UserRole.GLOBAL_ADMIN),
+  requireRole(UserRole.DEPT_MANAGER, UserRole.GLOBAL_ADMIN),
   managerDashboardController.reassignTicket
 );
 
