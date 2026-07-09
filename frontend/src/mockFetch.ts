@@ -121,39 +121,39 @@ const initialDb = {
       updatedAt: "2026-07-07T15:20:10.449Z"
     },
     {
-    id: "it-manager",
-    companyId: "company-default",
-    email: "itmanager@company.com",
-    fullName: "Michael Scott (IT Manager)",
-    employeeId: "EMP005",
-    passwordHash: "manager123",
-    departmentId: "dept-it",
-    managerId: null,
-    role: "DEPT_MANAGER",
-    supportLevel: "L3",
-    isActive: true,
-    isAvailableForAssignment: false,
-    maxActiveTickets: 0,
-    createdAt: "2026-07-07T14:55:34.519Z",
-    updatedAt: "2026-07-07T14:55:34.519Z"
-  },
-  {
-    id: "hr-manager",
-    companyId: "company-default",
-    email: "hrmanager@company.com",
-    fullName: "Toby Flenderson (HR Manager)",
-    employeeId: "EMP006",
-    passwordHash: "manager123",
-    departmentId: "dept-hr",
-    managerId: null,
-    role: "DEPT_MANAGER",
-    supportLevel: "L3",
-    isActive: true,
-    isAvailableForAssignment: false,
-    maxActiveTickets: 0,
-    createdAt: "2026-07-07T14:55:34.519Z",
-    updatedAt: "2026-07-07T14:55:34.519Z"
-  }
+      id: "it-manager",
+      companyId: "company-default",
+      email: "itmanager@company.com",
+      fullName: "Michael Scott (IT Manager)",
+      employeeId: "EMP005",
+      passwordHash: "manager123",
+      departmentId: "dept-it",
+      managerId: null,
+      role: "DEPT_MANAGER",
+      supportLevel: "L3",
+      isActive: true,
+      isAvailableForAssignment: false,
+      maxActiveTickets: 0,
+      createdAt: "2026-07-07T14:55:34.519Z",
+      updatedAt: "2026-07-07T14:55:34.519Z"
+    },
+    {
+      id: "hr-manager",
+      companyId: "company-default",
+      email: "hrmanager@company.com",
+      fullName: "Toby Flenderson (HR Manager)",
+      employeeId: "EMP006",
+      passwordHash: "manager123",
+      departmentId: "dept-hr",
+      managerId: null,
+      role: "DEPT_MANAGER",
+      supportLevel: "L3",
+      isActive: true,
+      isAvailableForAssignment: false,
+      maxActiveTickets: 0,
+      createdAt: "2026-07-07T14:55:34.519Z",
+      updatedAt: "2026-07-07T14:55:34.519Z"
+    }
   ],
   keywords: [
     {
@@ -1695,6 +1695,9 @@ const mockFetch = async function (input: RequestInfo | URL, init?: RequestInit):
       const { ticketId, newAssigneeId } = body;
       const ticketIndex = db.tickets.findIndex(t => t.id === ticketId);
       if (ticketIndex === -1) return jsonResponse({ error: "Ticket not found" }, 404);
+      if (db.tickets[ticketIndex].assigneeId === newAssigneeId) {
+        return jsonResponse({ error: "Ticket is already assigned to this user" }, 400);
+      }
 
       const newAssignee = db.users.find(u => u.id === newAssigneeId);
       if (!newAssignee || !newAssignee.isActive) {
@@ -1729,6 +1732,9 @@ const mockFetch = async function (input: RequestInfo | URL, init?: RequestInit):
       if (userIndex === -1) return jsonResponse({ error: "User not found" }, 404);
       if (!db.users[userIndex].departmentId) {
         return jsonResponse({ error: "User must belong to a department first" }, 400);
+      }
+      if (db.users[userIndex].role === "DEPT_MANAGER") {
+        return jsonResponse({ error: "User is already a Department Manager" }, 400);
       }
       db.users[userIndex].role = "DEPT_MANAGER";
       db.users[userIndex].updatedAt = new Date().toISOString();
