@@ -120,6 +120,40 @@ const initialDb = {
       createdAt: "2026-07-07T15:20:10.449Z",
       updatedAt: "2026-07-07T15:20:10.449Z"
     }
+    {
+    id: "it-manager",
+    companyId: "company-default",
+    email: "itmanager@company.com",
+    fullName: "Michael Scott (IT Manager)",
+    employeeId: "EMP005",
+    passwordHash: "manager123",
+    departmentId: "dept-it",
+    managerId: null,
+    role: "DEPT_MANAGER",
+    supportLevel: "L3",
+    isActive: true,
+    isAvailableForAssignment: false,
+    maxActiveTickets: 0,
+    createdAt: "2026-07-07T14:55:34.519Z",
+    updatedAt: "2026-07-07T14:55:34.519Z"
+  },
+  {
+    id: "hr-manager",
+    companyId: "company-default",
+    email: "hrmanager@company.com",
+    fullName: "Toby Flenderson (HR Manager)",
+    employeeId: "EMP006",
+    passwordHash: "manager123",
+    departmentId: "dept-hr",
+    managerId: null,
+    role: "DEPT_MANAGER",
+    supportLevel: "L3",
+    isActive: true,
+    isAvailableForAssignment: false,
+    maxActiveTickets: 0,
+    createdAt: "2026-07-07T14:55:34.519Z",
+    updatedAt: "2026-07-07T14:55:34.519Z"
+  }
   ],
   keywords: [
     {
