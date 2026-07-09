@@ -119,7 +119,7 @@ const initialDb = {
       maxActiveTickets: 0,
       createdAt: "2026-07-07T15:20:10.449Z",
       updatedAt: "2026-07-07T15:20:10.449Z"
-    }
+    },
     {
     id: "it-manager",
     companyId: "company-default",
