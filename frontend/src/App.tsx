@@ -57,6 +57,7 @@ import { UserDirectory } from "./components/userDirectory";
 import { InvitationComponent } from "./components/invitation";
 import { Dashboard } from "./components/Dashboard";
 import TicketsTable from "./components/TicketsTable"
+import ManagerDashboard from "./components/ManagerDashboard"
 
 export const SanghviLogo = ({ className = "w-6 h-6" }: { className?: string }) => (
   <svg viewBox="0 0 100 100" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -160,9 +161,10 @@ export default function App() {
   const [breached,setBreached] = useState<TicketType[]>([])
 
   // Role based check short hands
-  const isStaff = user ? ["CEO", "CTO", "CFO", "COO", "GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER", "TEAM_LEAD", "AGENT"].includes(user.role) : false;
-  const isAdmin = user ? ["GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER"].includes(user.role) : false;
+  const isStaff = user ? ["CEO", "CTO", "CFO", "COO", "GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER", "DEPT_MANAGER", "TEAM_LEAD", "AGENT"].includes(user.role) : false;
+  const isAdmin = user ? ["GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER", "DEPT_MANAGER"].includes(user.role) : false;
   const isGlobalAdmin = user ? user.role === "GLOBAL_ADMIN" : false;
+  const isManager = user ? ["MANAGER", "DEPT_MANAGER", "GLOBAL_ADMIN", "DEPT_ADMIN"].includes(user.role) : false;
 
   // Initialize and check token
   useEffect(() => {
@@ -894,6 +896,18 @@ export default function App() {
               </button>
             ) : null }
 
+            {isManager ? (
+              <button
+                onClick={() => setCurrentView("manager-dashboard")}
+                className={`w-full text-left px-5 py-2.5 flex items-center gap-3 cursor-pointer ${
+                  currentView === "manager-dashboard" ? "bg-slate-100 text-slate-900 border-l-4 border-slate-900 font-semibold" : "hover:bg-slate-50 hover:text-slate-900 text-slate-500 transition-colors"
+                }`}
+              >
+                <Users size={15} />
+                <span>Manager Dashboard</span>
+              </button>
+            ) : null }
+
             {/* Staff / Agent Directory */}
             {isGlobalAdmin && (
               <button
@@ -992,6 +1006,16 @@ export default function App() {
             metric={metric!}
             />
            
+          )}
+
+          {/* VIEW: MANAGER DASHBOARD */}
+          {currentView === "manager-dashboard" && (
+            <ManagerDashboard
+              token={token}
+              currentUser={user!}
+              setSelectedTicketId={setSelectedTicketId}
+              setCurrentView={setCurrentView}
+            />
           )}
 
           {/* VIEW: TICKETS LIST / QUEUE */}
