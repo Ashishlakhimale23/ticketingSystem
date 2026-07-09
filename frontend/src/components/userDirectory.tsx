@@ -25,7 +25,7 @@ export const UserDirectory = (
   const [editUserMaxTickets, setEditUserMaxTickets] = useState(15);
 
 
-  const isAdmin = user ? ["GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER", "DEPT_MANAGER"].includes(user.role) : false;
+  const isAdmin = user ? ["GLOBAL_ADMIN", "DEPT_ADMIN", "MANAGER"].includes(user.role) : false;
 
 
   const handleSaveUserDetails = async (e: React.FormEvent) => {
