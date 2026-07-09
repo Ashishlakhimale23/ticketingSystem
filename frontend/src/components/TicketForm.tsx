@@ -9,7 +9,7 @@ export const TicketForm = ({setError,setSuccess,setSelectedTicketId,setCurrentVi
     setCurrentView:React.Dispatch<React.SetStateAction<string>>,
     token:string,
     departments:Department[],
-    clients:Client
+    clients:Client[]
 }) => {
   const [newTicketTitle, setNewTicketTitle] = useState("");
   const [newTicketDesc, setNewTicketDesc] = useState("");
